@@ -1,0 +1,395 @@
+<?php
+	//database connection
+	include '../connection.php';
+
+	$navbartext = "";
+
+	if (isset($_SESSION['adminID'])) {
+		$quer = mysqli_query($con, "SELECT * FROM admin WHERE adminID = '$_SESSION[adminID]'");
+		$count = mysqli_num_rows($quer);
+		if ($count > 0) {
+			$row = mysqli_fetch_assoc($quer);
+			$adminID = $row['adminID'];
+			$adminFName = $row['adminFName'];
+			$adminLName = $row['adminLName'];
+			$adminCode = $row['adminCode'];
+			$type = ucwords($row['type']);
+			$full = ucwords($row['adminFName'])." ".ucwords($row['adminLName']);
+		}
+		$navbartext="<span class='navbar-text' style='padding: 0px;'>
+						<li class='nav-item dropdown' style='list-style-type:none;'>
+							<a class='nav-link dropdown-toggle' href='#' id='navbarDropdownMenuLink' role='button' data-toggle='dropdown' aria-haspopup='true' aria-expanded='false'>
+							".$full." (Brgy. ".$type.")
+							</a>
+							<div class='dropdown-menu' aria-labelledby='navbarDropdownMenuLink' style='background-color: #c2523e;'>
+								<a class='dropdown-item' data-toggle='modal' data-target='#profileModal'>
+									<i class='fa fa-fw fa-user'></i>Profile
+								</a>
+								<a class='dropdown-item' data-toggle='modal' data-target='#exampleModal'>
+									<i class='fa fa-fw fa-sign-out'></i>Logout
+								</a>
+							</div>
+						</li>
+					</span>";
+	}else{
+		echo "<script>window.location.href='../index.php'</script>";
+	}
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                      
+	<link rel="icon" href="../dist/images/logo.png">
+	<title>Barangay Services Management System</title>
+
+  	<link rel="stylesheet" type="text/css" href="../dist/css/style.css">
+	<link href="../dist/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+	<link href="../dist/vendor/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css">
+	<link href="../dist/css/sb-admin.css" rel="stylesheet">
+
+	<script src='https://cdn.jsdelivr.net/npm/sweetalert2@10.10.1/dist/sweetalert2.all.min.js'></script>
+
+	<script src="https://code.jquery.com/jquery-1.11.3.min.js"></script>
+
+    <link href="https://nightly.datatables.net/css/jquery.dataTables.css" rel="stylesheet" type="text/css" />
+    <script src="https://nightly.datatables.net/js/jquery.dataTables.js"></script>
+    
+    <link href="https://cdn.datatables.net/buttons/1.5.1/css/buttons.dataTables.css" />
+    <script src="https://cdn.datatables.net/buttons/1.5.1/js/dataTables.buttons.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.5.2/js/buttons.print.min.js"></script>
+	
+	<style type="text/css">
+		a.dropdown-item:hover, .log:hover{
+			background-color: #c2523e;
+			font-size: 17px;
+			cursor: pointer;
+		}
+		nav{
+			background-color: #c2523e;
+		}
+		div.total{
+			background: #c2523e;
+		}
+		.active{
+			background-color: #ffffff26;
+		}
+		.modal-content {
+			background-color: #c2523e;
+		}
+		.reader{
+			width: 700px;
+			margin: 0 auto;
+		}
+		.dropdown{
+			list-style-type: none;
+		}
+		.headItem{
+			margin-top: -25px;
+			margin-left: 42px;
+		}
+		.dropdown-menu{
+			border-radius: 0;
+			padding: 10px;
+			width: 250px;
+		}
+		@media (max-width: 760px){
+			div.card-body{
+				overflow: scroll;
+			}
+			div.reader{
+				width: 400px;
+			}
+			div.content-wrapper{
+				margin-top: 50px;
+			}
+		}
+	</style>
+</head>
+<body class="fixed-nav sticky-footer" id="page-top">
+	<!-- Navigation -->
+	<nav class="navbar navbar-expand-lg navbar-dark fixed-top" id="mainNav">
+		<h5 class="header5" style="font-size: 20px; margin-left: 0%;"><img src="../dist/images/logo.png" width="5%">Barangay Services Management System</h5>
+		<button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
+			<span class="navbar-toggler-icon"></span>
+		</button>
+		<div class="collapse navbar-collapse" id="navbarResponsive">
+			<ul class="navbar-nav navbar-sidenav" id="exampleAccordion" style="background-color: #c2523e;">
+				<br>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Dashboard">
+					<a class="nav-link" href="dashboard.php?adminID=<?php echo ($adminID)?>" style="color: white;">
+						<i class="fa fa-fw fa-dashboard"></i>
+						<span class="nav-link-text">Dashboard</span>
+					</a>
+				</li>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="List">
+					<a class="nav-link" href="list.php?adminID=<?php echo ($adminID)?>" style="color: white;">
+						<i class="fa fa-fw fa-users"></i>
+						<span class="nav-link-text">List</span>
+					</a>
+				</li>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="List">
+					<a class="nav-link" href="import.php?adminID=<?php echo ($adminID)?>" style="color: white;">
+						<i class="fa fa-fw fa-list"></i>
+						<span class="nav-link-text">Import Residents</span>
+					</a>
+				</li>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Requests">
+					<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseExamplePages" data-parent="#exampleAccordion" style="color: white;">
+						<i class="fa fa-fw fa-file"></i>
+						<span class="nav-link-text">Requests</span>
+					</a>
+					<ul class="sidenav-second-level collapse" id="collapseExamplePages" style="background-color: #c2523e;">
+						<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Documents">
+							<a class="nav-link nav-link-collapse collapsed" data-toggle="collapse" href="#collapseExamplePagess" data-parent="#exampleAccordion" style="color: white;">
+								<i class="fa fa-fw fa-file"></i>
+								<span class="nav-link-text">Documents</span>
+							</a>
+							<ul class="sidenav-second-level collapse" id="collapseExamplePagess" style="background-color: #c2523e;">
+								<li>
+									<a href="docPending.php?adminID=<?php echo ($adminID)?>" style="color: white; margin-left: 30px;">PENDING</a>
+								</li>
+								<li>
+									<a href="docPaid.php?adminID=<?php echo ($adminID)?>" style="color: white; margin-left: 30px;">PAID</a>
+								</li>
+								<li>
+									<a href="docComplete.php?adminID=<?php echo ($adminID)?>" style="color: white; margin-left: 30px;">COMPLETED</a>
+								</li>
+							</ul>
+						</li>
+						<li>
+							<a href="blotter.php?adminID=<?php echo ($adminID)?>" style="color: white;"><i class="fa fa-fw fa-video-camera"></i> Blotter</a>
+						</li>
+					</ul>
+				</li>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Scan QR">
+					<a class="nav-link" href="scan.php?adminID=<?php echo ($adminID)?>" style="color: white;">
+						<i class="fa fa-fw fa-qrcode"></i>
+						<span class="nav-link-text">Scan QR</span>
+					</a>
+				</li>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Calendar">
+					<a class="nav-link" href="calendar.php?adminID=<?php echo ($adminID)?>" style="color: white;">
+						<i class="fa fa-fw fa-calendar"></i>
+						<span class="nav-link-text">Calendar</span>
+					</a>
+				</li>
+				<li class="nav-item" data-toggle="tooltip" data-placement="right" title="Archive">
+					<a class="nav-link active nav-link-collapse collapsed" data-toggle="collapse" href="#collapsePages" data-parent="#exampleAccordion" style="color: white;">
+						<i class="fa fa-fw fa-archive"></i>
+						<span class="nav-link-text">Archive</span>
+					</a>
+					<ul class="sidenav-second-level collapse" id="collapsePages" style="background-color: #c2523e;">
+						<li>
+							<a href="archiveDoc.php?adminID=<?php echo ($adminID)?>" style="color: white;"><i class="fa fa-fw fa-file"></i> Documents</a>
+						</li>
+						<li>
+							<a href="archiveBlotter.php?adminID=<?php echo ($adminID)?>" style="color: white;"><i class="fa fa-fw fa-video-camera"></i> Blotter</a>
+						</li>
+					</ul>
+				</li>
+			</ul>
+			<ul class="navbar-nav sidenav-toggler" style="background-color: #c2523e;">
+				<li class="nav-item">
+					<a class="nav-link text-center" id="sidenavToggler">
+						<i class="fa fa-fw fa-angle-left" style="color: white;"></i>
+					</a>
+				</li>
+			</ul>
+			<ul class="navbar-nav ml-auto"></ul>
+			<?php echo $navbartext; ?>
+		</div>
+	</nav>
+	<!-- End of Navigation -->
+
+	<?php
+		date_default_timezone_set("Etc/GMT+8");
+		
+		$qr = mysqli_query($con, "SELECT * FROM `request`");
+		while($r = mysqli_fetch_array($qr)){
+			if(date('Y-m-d', strtotime($r['dDate']. ' + 2 days')) < date('Y-m-d', strtotime('-5 years'))){
+				$qq = mysqli_query($con, "SELECT * FROM document WHERE docID = '$r[docID]'");
+				while ($rr = mysqli_fetch_array($qq)) {
+					mysqli_query($con, "INSERT INTO `archive` VALUES('', 1, '$rr[type]', '$r[purpose]', '$r[dDate]', NULL, NULL, NULL, NULL, '$rr[amount]', NULL, '$r[resID]', NULL)") or die(mysqli_error($con));
+					mysqli_query($con, "DELETE FROM `request` WHERE `requestID` = '$r[requestID]'") or die(mysqli_error($con));
+				}
+			}
+		}
+		
+	?>
+	
+	<div class="content-wrapper">
+		<div class="container-fluid">
+			<!-- Breadcrumbs-->
+			<ol class="breadcrumb">
+				<li class="breadcrumb-item">
+					<a href="archiveDoc.php?adminID=<?php echo($adminID)?>">Archive</a>
+				</li>
+				<li class="breadcrumb-item active">Documents</li>
+			</ol>
+			<form method="post" action="" class="form-inline" style="margin-bottom: 5px; float: left;">
+				<label style="margin-left: 15px; margin-right: 15px; font-weight: bold;">Date</label>
+				From <input type="date" placeholder="Start" class="form-control" name="date1">
+				To <input type="date" placeholder="End" class="form-control" name="date2">
+
+				<button class="btn save" name="search" style="margin-right: 2px; margin-left: 5px;"><span><i class="fa fa-search"></i></span></button>
+			</form>
+			<div class="table-responsive">
+				<table id="dataTable" class="table tbl table-striped table-bordered" width="100%" style="text-align: center;">
+					<thead>
+						<tr>
+	    					<th>Type
+	    						<ul class="headItem">
+	    							<li class="dropdown">
+	    								<a href="#" data-toggle="dropdown" class="dropdown-toggle">
+	    									<b class="caret"></b>
+	    								</a>
+	    								<ul class="dropdown-menu" style="padding: 0px 0px 0px 30px; overflow-y: auto; height: 180px;">
+	    									<form method="POST" action="">
+	    										<li style="color: #333;">
+		    										<label class="checkbox">
+		    											<input type="radio" id="check" name="type" value="Certificate of Indigency"> Certificate of Indigency <br/>
+		    											<input type="radio" id="check" name="type" value="Certificate of Residency"> Certificate of Residency <br/>
+		    											<input type="radio" id="check" name="type" value="Barangay Clearance"> Barangay Clearance <br/>
+		    											<input type="radio" id="check" name="type" value="Recommendation"> Recommendation <br/>
+		    										</label>
+		    									</li>
+	    									
+	    										<div class="modal-footer">
+	    											<input type="submit" name="findType" class="btn edit btn-sm" value="Apply">
+		    										<!-- <button type="submit" id="findStatus" class="btn edit btn-sm">Apply</button> -->
+		    									</div>
+	    									</form>
+	    								</ul>
+	    							</li>
+	    						</ul>
+	    					</th>
+	    					<th>Purpose</th>
+	    					<th>Date</th>
+	    					<th>Amount</th>
+	    					<th>Requested by</th>
+						</tr>
+					</thead>
+					<tbody>
+						<?php
+							if (isset($_POST['findType'])) {
+								$type = $_POST['type'];
+
+								$query=mysqli_query($con, "SELECT * FROM archive WHERE type = '$type' AND docBlotter = 1 ORDER BY date DESC") or die(mysqli_error());
+								$row1=mysqli_num_rows($query);
+								if($row1>0){
+									while($fetch=mysqli_fetch_array($query)){
+						?>
+										<tr>
+				    						<td><?php echo $fetch['type'] ?></td>
+				    						<td><?php echo $fetch['purpose']?></td>
+				    						<td><?php echo date("M d, Y", strtotime ($fetch['date']))?></td>
+				    						<td><?php echo $fetch['amount'].".00"?></td>
+				    						<?php 
+				    							$qr = mysqli_query($con, "SELECT resFName, resLName FROM resident WHERE resID = '$fetch[resID]'");
+				    							$ct = mysqli_num_rows($qr);
+												if ($ct > 0) {
+													$row = mysqli_fetch_assoc($qr);
+													$fullName = ucwords($row['resFName'])." ".ucwords($row['resLName']);
+				    						?>
+				    						<td><?php echo $fullName?></td>
+				    						<?php } ?>
+										</tr>
+						<?php
+									}
+								}else{
+									echo'<tr>
+											<td colspan = "10"><center>Record Not Found</center></td>
+										</tr>';
+								}
+							}
+							else if(isset($_POST['search'])){
+								$date1 = $_POST['date1'];
+								$date2 = $_POST['date2'];
+								$query=mysqli_query($con, "SELECT * FROM `archive` WHERE docBlotter = 1 AND `date` BETWEEN '$date1' AND '$date2' ORDER BY date DESC") or die(mysqli_error());
+								$row2=mysqli_num_rows($query);
+								if($row2>0){
+									while($fetch=mysqli_fetch_array($query)){
+
+						?>
+							<tr>
+	    						<td><?php echo $fetch['type'] ?></td>
+	    						<td><?php echo $fetch['purpose']?></td>
+	    						<td><?php echo date("M d, Y", strtotime ($fetch['date']))?></td>
+	    						<td><?php echo $fetch['amount'].".00"?></td>
+	    						<?php 
+	    							$qr = mysqli_query($con, "SELECT resFName, resLName FROM resident WHERE resID = '$fetch[resID]'");
+	    							$ct = mysqli_num_rows($qr);
+									if ($ct > 0) {
+										$row = mysqli_fetch_assoc($qr);
+										$fullName = ucwords($row['resFName'])." ".ucwords($row['resLName']);
+	    						?>
+	    						<td><?php echo $fullName?></td>
+	    						<?php } ?>
+							</tr>
+						<?php
+									}
+								}else{
+									echo'
+									<tr>
+										<td colspan = "10"><center>Record Not Found</center></td>
+									</tr>';
+								}
+							}else{
+								$query=mysqli_query($con, "SELECT * FROM `archive` WHERE docBlotter = 1 ORDER BY date DESC") or die(mysqli_error());
+								while($fetch=mysqli_fetch_array($query)){
+						?>
+							<tr>
+	    						<td><?php echo $fetch['type'] ?></td>
+	    						<td><?php echo $fetch['purpose']?></td>
+	    						<td><?php echo date("M d, Y", strtotime ($fetch['date']))?></td>
+	    						<td><?php echo $fetch['amount'].".00"?></td>
+	    						<?php 
+	    							$qr = mysqli_query($con, "SELECT resFName, resLName FROM resident WHERE resID = '$fetch[resID]'");
+	    							$ct = mysqli_num_rows($qr);
+									if ($ct > 0) {
+										$row = mysqli_fetch_assoc($qr);
+										$fullName = ucwords($row['resFName'])." ".ucwords($row['resLName']);
+	    						?>
+	    						<td><?php echo $fullName?></td>
+	    						<?php } ?>
+							</tr>
+						<?php
+								}
+							}
+						?>
+					</tbody>
+				</table>
+			</div>
+		</div>
+		<!-- /.container-fluid-->
+	</div>
+
+	<!-- Profile Modal-->
+	<?php include '../profileModal.php'; ?>
+
+	<!-- Logout Modal-->
+	<?php include '../logout.php'; ?>
+
+	<script src="../dist/vendor/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+	<script type="text/javascript">
+	    var table = $('#dataTable').DataTable( {
+	        dom:  'T<"clear">rtip',
+			"targets": 'no-sort',
+			"bSort": false,
+			"order": [],
+	        "pagingType": "full_numbers",
+			language: {
+				paginate: {
+					first: '<i class="fa fa-fw fa-angle-double-left">',
+					previous: '<i class="fa fa-fw fa-angle-left">',
+					next: '<i class="fa fa-fw fa-angle-right">',
+					last: '<i class="fa fa-fw fa-angle-double-right">'
+				}
+			}
+	    });
+	</script>
+</body>
+</html>
